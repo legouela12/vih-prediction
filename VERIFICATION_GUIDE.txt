@@ -1,0 +1,178 @@
+✅ GUIDE DE VÉRIFICATION - COHÉRENCE VIH PREDICTION
+════════════════════════════════════════════════════════════════════
+
+📌 QU'EST-CE QUI A ÉTÉ CORRIGÉ ?
+─────────────────────────────────────────────────────────────────────
+
+Problème: Les données envoyées par l'interface utilisateur (snake_case) 
+n'étaient pas converties en format attendu par le modèle (PascalCase)
+
+Solution: Ajout d'un mapping automatique dans ml_service.py et 
+correction dans visualizations.py
+
+
+🔧 FICHIERS MODIFIÉS
+─────────────────────────────────────────────────────────────────────
+
+1. app/services/ml_service.py
+   ├─ Ajout du mapping input_to_model_mapping
+   └─ Normalisation automatique dans predict()
+
+2. app/api/visualizations.py
+   ├─ Normalisation des données d'entrée
+   └─ Utilisation des bonnes clés PascalCase
+
+3. Autres fichiers: AUCUN CHANGEMENT REQUIS
+   ├─ main.py ✅
+   ├─ predict.py ✅
+   └─ Les modèles Pydantic restent en snake_case ✅
+
+
+📊 RÉSULTATS ATTENDUS APRÈS REDÉMARRAGE
+─────────────────────────────────────────────────────────────────────
+
+Patient Test: Age=25, CD4=700, Score infections=0, Temps=60 mois
+
+Prédiction:
+  ✅ Prédiction: Vivant
+  ✅ Confiance: 66.9% (avant: 49.3%)
+  ✅ Colab compatible: OUI
+
+SHAP Values (5 premières):
+  ✅ Durée de suivi:        +0.1376 (avant: +0.039)
+  ✅ Non-observance:        +0.1104 (avant: +0.037)
+  ✅ Âge au diagnostic:     +0.0470 (avant: ~0.02)
+  ✅ Hospitalisation:       +0.0378 (avant: +0.025)
+  ✅ Étude secondaire+:     +0.0320 (avant: -0.056)
+
+
+🚀 COMMENT RELANCER L'APPLICATION
+─────────────────────────────────────────────────────────────────────
+
+1. Arrêter l'application actuelle (si elle s'exécute)
+   Ctrl+C dans le terminal
+
+2. Lancer la nouvelle version:
+   cd d:\vih_prediction\backend
+   python run_api.py
+
+3. L'API démarre sur:
+   http://localhost:8000
+
+4. Interface web:
+   http://localhost:8000/api/viz/predict-ui
+
+
+✅ COMMENT VÉRIFIER LA COHÉRENCE
+─────────────────────────────────────────────────────────────────────
+
+Option 1: Script de vérification (avant de redémarrer l'app)
+   cd d:\vih_prediction\backend
+   python verify_coherence.py
+
+Option 2: Tester directement dans l'interface web
+   1. Ouvrir http://localhost:8000/api/viz/predict-ui
+   2. Entrer les mêmes données que test:
+      - Âge: 25 ans
+      - CD4: 700 cellules/mm³
+      - Score infections: 0
+      - Temps suivi: 60 mois
+      - Stade avancé: Non
+      - Non-observant: Non
+      - Hospitalisation: Non
+      - Tuberculose: Non
+      - Vit seul: Non
+      - Étude secondaire+: Oui
+   3. Cliquer "PRÉDIRE"
+   4. Vérifier que:
+      - Prédiction: "Vivant"
+      - Confiance: "66.9%" ← IMPORTANT!
+      - SHAP: Les valeurs doivent correspondre à Colab
+
+Option 3: Tester l'endpoint API directement
+   POST http://localhost:8000/api/predict
+   Body (JSON):
+   {
+     "age_diagnostic": 25,
+     "cd4_debut": 700,
+     "score_inf_opp": 0,
+     "temps_suivi": 60,
+     "stade_avance": false,
+     "non_observant": false,
+     "hospitalisation": false,
+     "tuberculoses": false,
+     "vit_seul": false,
+     "etude_secondaire_ou_plus": true
+   }
+   
+   Résultat attendu:
+   {
+     "success": true,
+     "prediction": "Vivant",
+     "confidence": 0.6687,
+     "probabilities": {
+       "Décédé": 0.0,
+       "Perdu de Vue": 0.03,
+       "Transféré": 0.301,
+       "Vivant": 0.6687
+     },
+     "processing_time_ms": XXX
+   }
+
+
+🛠️ DÉPANNAGE
+─────────────────────────────────────────────────────────────────────
+
+Problème: La confiance affiche toujours 49.3%
+Solution: 
+  1. Vérifier que les fichiers Python ont bien été modifiés
+  2. Redémarrer COMPLÈTEMENT Python (tuer tous les processus python)
+  3. Relancer l'application
+
+Problème: Les SHAP values ne changent pas
+Solution:
+  1. Vérifier la conversion dans visualizations.py
+  2. Vérifier que patient_dict utilise les clés PascalCase
+  3. Regarder les logs de débogage (DEBUG LOGS)
+
+Problème: Erreur "Modèle non chargé"
+Solution:
+  1. Vérifier que best_model_final.joblib existe dans models/
+  2. Vérifier les permissions du fichier
+  3. Relancer l'application
+
+
+📋 RÉSUMÉ DE LA TRANSFORMATION
+─────────────────────────────────────────────────────────────────────
+
+Interface/Pydantic    Model/Features     Conversion
+─────────────────────────────────────────────────────────────
+age_diagnostic   →   Age_diagnostic     ✅ Automatic
+cd4_debut        →   CD4_debut          ✅ Automatic
+score_inf_opp    →   Score_inf_opp      ✅ Automatic
+temps_suivi      →   temps_suivi        ✅ Automatic
+stade_avance     →   Stade_avance       ✅ Automatic
+non_observant    →   Non_observant      ✅ Automatic
+hospitalisation  →   Hospitalisation    ✅ Automatic
+tuberculoses    →   Tuberculoses       ✅ Automatic
+vit_seul        →   Vit_seul           ✅ Automatic
+etude_secondaire_ou_plus → Etude_secondaire_ou_plus ✅ Automatic
+
+
+✅ VALIDATION FINALE
+─────────────────────────────────────────────────────────────────────
+
+Après redémarrage, testez avec ce patient:
+- Âge: 25, CD4: 700, Temps: 60 mois, Education: Oui
+- Autres: Tous à "Non"
+
+ATTENDU (Colab):
+  Prédiction: Vivant (Confiance: 66.9%)
+  SHAP: Durée=+0.1376, Non-obs=+0.1104, Âge=+0.0470
+
+SI VOUS OBTENEZ CES VALEURS → ✅ COHÉRENCE VALIDÉE !
+
+
+════════════════════════════════════════════════════════════════════
+QUESTIONS ? Regarder COHERENCE_SUMMARY.md pour plus de détails
+════════════════════════════════════════════════════════════════════

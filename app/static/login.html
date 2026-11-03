@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentification - VIH Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0b3b5f 0%, #1a5a7a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #1f6392 0%, #134b6f 100%);
+            padding: 35px 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .login-header i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .login-header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .login-header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .login-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.85rem;
+        }
+
+        .form-group label i {
+            margin-right: 8px;
+            color: #1f6392;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: 'Inter', monospace;
+        }
+
+        .form-group input:focus {
+            border-color: #1f6392;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(31, 99, 146, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(95deg, #1f6392 0%, #134b6f 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-left: 4px solid #b91c1c;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #155724;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-credentials {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .demo-credentials p {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .credential-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .credential-item:hover {
+            background: #f1f5f9;
+        }
+
+        .credential-role {
+            font-weight: 700;
+            color: #1f6392;
+        }
+
+        .credential-details {
+            font-family: monospace;
+            color: #475569;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #e9edf2;
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fas fa-hospital-user"></i>
+                <h1>VIH Prediction</h1>
+                <p>Plateforme d'aide à la décision clinique</p>
+            </div>
+            <div class="login-body">
+                <div id="alertMessage" class="alert"></div>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Nom d'utilisateur</label>
+                        <input type="text" id="username" placeholder="Entrez votre nom d'utilisateur" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Mot de passe</label>
+                        <input type="password" id="password" placeholder="Entrez votre mot de passe" required>
+                    </div>
+                    <button type="submit" class="btn-login" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </button>
+                </form>
+
+                <div class="demo-credentials">
+                    <p><i class="fas fa-info-circle"></i> Identifiants de démonstration :</p>
+                    <div class="credential-item" onclick="fillCredentials('admin', 'admin123')">
+                        <span class="credential-role"><i class="fas fa-crown"></i> Admin</span>
+                        <span class="credential-details">admin / admin123</span>
+                    </div>
+                    <div class="credential-item" onclick="fillCredentials('doctor', 'doctor123')">
+                        <span class="credential-role"><i class="fas fa-user-md"></i> Médecin</span>
+                        <span class="credential-details">doctor / doctor123</span>
+                    </div>
+                    <div class="credential-item" onclick="fillCredentials('nurse', 'nurse123')">
+                        <span class="credential-role"><i class="fas fa-user-nurse"></i> Infirmier</span>
+                        <span class="credential-details">nurse / nurse123</span>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <i class="fas fa-shield-alt"></i> Connexion sécurisée - API VIH Prediction v2.0
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        function fillCredentials(username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            // Optionnel: déclencher automatiquement la connexion
+            // document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.innerHTML = `
+                <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
+                <span>${message}</span>
+            `;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.style.display = 'flex';
+            
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+                alertDiv.className = 'alert';
+            }, 5000);
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            if (!username || !password) {
+                showAlert('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<div class="spinner"></div> Connexion...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Stocker dans localStorage
+                    localStorage.setItem('access_token', data.access_token);
+                    
+                    showAlert(`Bienvenue ${data.full_name} ! Redirection en cours...`, 'success');
+                    
+                    // ⭐ Redirection avec token dans l'URL
+                    setTimeout(() => {
+                        window.location.href = `/api/dashboard-crud?token=${data.access_token}`;
+                    }, 500);
+                } else {
+                    showAlert(data.detail || 'Nom d\'utilisateur ou mot de passe incorrect', 'error');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showAlert('Erreur de connexion au serveur. Vérifiez que l\'API est démarrée.', 'error');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
+            }
+        }
+        
+        // Initialisation
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        checkAuth();
+    </script>
+</body>
+</html>
