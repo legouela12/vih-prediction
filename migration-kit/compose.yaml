@@ -1,0 +1,71 @@
+services:
+  gateway:
+    image: openmrs/openmrs-reference-application-3-gateway@sha256:8877a8cbe36149317a52518c72249549d8920c360bbc034b1f605dd928ff2eb8
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "127.0.0.1:${OPENMRS_PORT:-8080}:80"
+
+  frontend:
+    image: openmrs/openmrs-reference-application-3-frontend@sha256:90f2304878af455a270e5b1abac7db63ef6b78e6bdb916e17944ff4319acd623
+    restart: unless-stopped
+    environment:
+      SPA_PATH: /openmrs/spa
+      API_URL: /openmrs
+      SPA_CONFIG_URLS: ""
+    volumes:
+      - ./openmrs-extension/deploy/importmap.json:/usr/share/nginx/html/importmap.json:ro
+      - ./openmrs-extension/deploy/importmap.json.gz:/usr/share/nginx/html/importmap.json.gz:ro
+      - ./openmrs-extension/deploy/importmap.json.br:/usr/share/nginx/html/importmap.json.br:ro
+      - ./openmrs-extension/deploy/routes.registry.json:/usr/share/nginx/html/routes.registry.json:ro
+      - ./openmrs-extension/deploy/routes.registry.json.gz:/usr/share/nginx/html/routes.registry.json.gz:ro
+      - ./openmrs-extension/deploy/routes.registry.json.br:/usr/share/nginx/html/routes.registry.json.br:ro
+      - ./openmrs-extension/dist:/usr/share/nginx/html/openmrs-esm-vih-prediction-app-1.0.0:ro
+    depends_on:
+      - backend
+
+  backend:
+    image: openmrs/openmrs-reference-application-3-backend@sha256:f25c69ae8e5d995324464efdf13c610bf25220abd38fcd69d36c17a70290bed9
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      OMRS_CONFIG_MODULE_WEB_ADMIN: "true"
+      OMRS_CONFIG_AUTO_UPDATE_DATABASE: "true"
+      OMRS_CONFIG_CREATE_TABLES: "true"
+      OMRS_CONFIG_CONNECTION_SERVER: db
+      OMRS_CONFIG_CONNECTION_DATABASE: openmrs
+      OMRS_CONFIG_CONNECTION_USERNAME: ${OPENMRS_DB_USER:-openmrs}
+      OMRS_CONFIG_CONNECTION_PASSWORD: ${OPENMRS_DB_PASSWORD:?Set OPENMRS_DB_PASSWORD in migration-kit/.env}
+    volumes:
+      - type: volume
+        source: openmrs-data
+        target: /openmrs/data
+        volume:
+          nocopy: true
+
+  db:
+    image: mariadb@sha256:d769e37960821dfdcf096954f6e7ac89f747e116c1bba98e48edd265dfc7deae
+    restart: unless-stopped
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    environment:
+      MYSQL_DATABASE: openmrs
+      MYSQL_USER: ${OPENMRS_DB_USER:-openmrs}
+      MYSQL_PASSWORD: ${OPENMRS_DB_PASSWORD:?Set OPENMRS_DB_PASSWORD in migration-kit/.env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in migration-kit/.env}
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  openmrs-data:
+    name: vih-openmrs-data
+  db-data:
+    name: vih-openmrs-db

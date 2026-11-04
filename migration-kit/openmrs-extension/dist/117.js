@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunk_openmrs_esm_vih_prediction_app=globalThis.webpackChunk_openmrs_esm_vih_prediction_app||[]).push([["117"],{4300(e){e.exports=JSON.parse('{"welcomeToModule":"Welcome to extension!","getStarted":"Get started by adding routes, extensions, or components."}')}}]);

@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json.openmrs.org/form.schema.json",
+  "name": "Evaluation VIH pour prediction IA",
+  "version": "1.0",
+  "encounterType": "0e8230ce-bd1d-43f5-a863-cf44344fa4b0",
+  "processor": "EncounterFormProcessor",
+  "referencedForms": [],
+  "pages": [
+    {
+      "label": "Evaluation VIH",
+      "sections": [
+        {
+          "label": "Donnees requises pour la prediction",
+          "isExpanded": true,
+          "questions": [
+            {
+              "id": "hivDiagnosisDate",
+              "label": "Date de decouverte de la seropositivite",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "date",
+                "concept": "160554AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              }
+            },
+            {
+              "id": "initialCd4",
+              "label": "CD4 au debut du traitement (cellules/uL)",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "5497AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "min": 0,
+                "step": 1
+              }
+            },
+            {
+              "id": "advancedStage",
+              "label": "Stade clinique OMS avance (III ou IV)",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "toggle",
+                "concept": "75732337-7601-4157-971e-f196f3dc7bfd",
+                "toggleOptions": {
+                  "labelTrue": "Oui",
+                  "labelFalse": "Non"
+                }
+              }
+            },
+            {
+              "id": "nonAdherent",
+              "label": "Non-observant selon le suivi clinique",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "toggle",
+                "concept": "46496930-216f-4fc7-b79f-c2a9f20fb0a9",
+                "toggleOptions": {
+                  "labelTrue": "Oui",
+                  "labelFalse": "Non"
+                }
+              }
+            },
+            {
+              "id": "vitSeul",
+              "label": "Celibataire ou veuf/veuve (variable Vit_seul du modele)",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "toggle",
+                "concept": "04da77a9-ccc7-4eaf-a103-a4964df00976",
+                "toggleOptions": {
+                  "labelTrue": "Oui",
+                  "labelFalse": "Non"
+                }
+              }
+            },
+            {
+              "id": "educationSecondaryPlus",
+              "label": "Niveau scolaire secondaire ou universitaire",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "toggle",
+                "concept": "3688c33c-c821-4d67-b2c8-fc9df706ce07",
+                "toggleOptions": {
+                  "labelTrue": "Oui",
+                  "labelFalse": "Non"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "encounter": {
+    "encounterType": {
+      "uuid": "0e8230ce-bd1d-43f5-a863-cf44344fa4b0"
+    }
+  },
+  "description": "formulaire pour VIH Prédiction",
+  "uuid": "61465e23-9e77-4f68-aa3b-6a6d99773700",
+  "postSubmissionActions": [
+    {
+      "actionId": "VihPredictionSubmissionAction"
+    }
+  ]
+}

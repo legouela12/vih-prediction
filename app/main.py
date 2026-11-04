@@ -93,9 +93,9 @@ async def lifespan(app: FastAPI):
         
         # ========== AJOUTER ICI ==========
         openmrs_client = OpenMRSClient(
-            base_url=os.getenv("OPENMRS_BASE_URL", "http://localhost:8083/openmrs/ws/rest/v1"),
-            username=os.getenv("OPENMRS_USERNAME", "admin"),
-            password=os.getenv("OPENMRS_PASSWORD", "Admin123"),
+            base_url=os.getenv("OPENMRS_BASE_URL", "http://127.0.0.1:8080/openmrs/ws/rest/v1"),
+            username=os.getenv("OPENMRS_USERNAME", ""),
+            password=os.getenv("OPENMRS_PASSWORD", ""),
             timeout=float(os.getenv("OPENMRS_TIMEOUT", "10"))
         )
         app.state.openmrs_client = openmrs_client
@@ -151,6 +151,8 @@ app.add_middleware(
         "http://127.0.0.1:3001",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
         "*"
     ],
     allow_credentials=True,
@@ -174,6 +176,9 @@ app.include_router(visualizations.router, prefix="/api", tags=["visualizations"]
 app.include_router(metrics_router, prefix="/api", tags=["metrics"])
 app.include_router(auth_2fa_router, prefix="/api/auth", tags=["authentification"])  # ⭐ ICI
 app.include_router(openmrs_router, prefix="/api", tags=["openmrs"])
+# Cookie-path-compatible entry point for the O3 post-submission action. The
+# browser sends its HttpOnly OpenMRS session cookie only to paths under /openmrs.
+app.include_router(openmrs_router, prefix="/openmrs/api", tags=["openmrs-browser"])
 
 
 @app.get("/openmrs-predict/{patient_uuid}")

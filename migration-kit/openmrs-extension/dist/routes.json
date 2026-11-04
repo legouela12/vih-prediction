@@ -1,0 +1,1 @@
+{"$schema":"https://json.openmrs.org/routes.schema.json","pages":[{"route":"extension","component":"root","online":true}],"extensions":[{"name":"vih-prediction-action-registration","slot":"patient-banner-tags-slot","component":"registerVihPredictionAction","online":true}],"version":"1.0.0"}
